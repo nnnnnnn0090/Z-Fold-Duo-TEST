@@ -140,13 +140,13 @@ class EmbeddedAdbAngleClient(
             "service call wallpaper 90 i32 5 s16 android.wallpaper.wakingup >/dev/null"
         private const val PRIVATE_SENSOR_STOPPED = "unregisterSensor: mIsSensorRegistered[true]"
         private const val ANGLE_LOG_COMMAND =
-            "logcat -v brief -T 1 --regex='(onCommand: action\\[$ANGLE_ACTION\\], mCurrentAngle|" +
-                "unregisterSensor: mIsSensorRegistered\\[true\\])' " +
-                "'SprWallpaper|FoldInteractive':I '*:S'"
+    "logcat -v brief -T 1 --regex='(mCurrentAngle|" +
+        "unregisterSensor: mIsSensorRegistered\\[true\\])' '*:V'"
         private const val LIVE_CAPTURE_COMMAND =
             "CLASSPATH=${'$'}(pm path com.foldduo.hinge | head -n 1 | cut -d: -f2) " +
                 "exec app_process /system/bin com.foldduo.hinge.capture.LiveCaptureBridge"
-        private val PRIVATE_ANGLE = Regex("mCurrentAngle\\[([-+]?\\d+(?:\\.\\d+)?)\\]")
+        private val PRIVATE_ANGLE =
+    Regex("""mCurrentAngle[^0-9+\-]*([-+]?\d+(?:\.\d+)?)""")
 
         private fun safeMessage(error: Throwable): String =
             error.message?.takeIf { it.isNotBlank() } ?: error.javaClass.simpleName

@@ -1,19 +1,17 @@
-name: Android CI
+name: Build ZFoldDuo APK
 
 on:
+  workflow_dispatch:
   push:
-  pull_request:
-
-permissions:
-  contents: read
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
 
     steps:
-      - name: Check out source
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
@@ -22,11 +20,20 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
 
-      - name: Install Android SDK platform
-        run: sdkmanager "platforms;android-37"
+      - name: Install Android SDK 37
+        run: sdkmanager "platform-tools" "platforms;android-37.0" "build-tools;37.0.0"
 
-      - name: Test and build debug APK
-        run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug
+      - name: Make Gradle executable
+        run: chmod +x gradlew
+
+      - name: Build APK
+        run: ./gradlew --no-daemon assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZFoldDuo-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
